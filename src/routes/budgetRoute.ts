@@ -18,6 +18,6 @@ router.post(
   budgetMiddlewares.checkPositiveRemaining,
   addExpense
 );
-router.delete('/:id', removeExpense);
+router.delete('/:id', budgetMiddlewares.checkExpenseExist, removeExpense);
 
 export default router;

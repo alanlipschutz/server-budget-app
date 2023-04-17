@@ -43,9 +43,29 @@ const checkPositiveRemaining: RequestHandler = async (req, res, next) => {
   next();
 };
 
+const checkExpenseExist: RequestHandler<{ id: string }> = async (
+  req,
+  res,
+  next
+) => {
+  const { id } = req.params;
+  const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
+  const budgetState: BudgetState = JSON.parse(response);
+  const expenseToRemove = budgetState.expenses.find(
+    (expense) => expense.id === id
+  );
+  if (!expenseToRemove) {
+    res.status(404).send({
+      error: 'Expense not found. Please, provide of an expense to delete.',
+    });
+  }
+  next();
+};
+
 export default {
   checkPositiveBudget,
   checkBudgetStatusPositive,
   checkPositiveExpense,
   checkPositiveRemaining,
+  checkExpenseExist,
 };
