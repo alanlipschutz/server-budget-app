@@ -5,7 +5,7 @@ import { json } from 'body-parser';
 import budgetRoutes from './routes/budgetRoute';
 
 const app = express();
-// app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors());
 
 app.use(json());
 app.use('/', budgetRoutes);

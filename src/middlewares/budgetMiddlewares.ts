@@ -20,7 +20,7 @@ const checkBudgetStatusPositive: RequestHandler = async (req, res, next) => {
 };
 
 const checkPositiveExpense: RequestHandler = async (req, res, next) => {
-  const expense: Expense = req.body.expense;
+  const expense: Expense = req.body;
   if (expense.cost <= 0) {
     res.status(400).send({
       error:
@@ -31,7 +31,7 @@ const checkPositiveExpense: RequestHandler = async (req, res, next) => {
 };
 
 const checkPositiveRemaining: RequestHandler = async (req, res, next) => {
-  const expense: Expense = await req.body.expense;
+  const expense: Expense = req.body;
   const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
   const budgetState: BudgetState = JSON.parse(response);
   if (budgetState.budgetState - expense.cost < 0) {

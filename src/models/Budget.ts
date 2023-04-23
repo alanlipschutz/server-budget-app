@@ -42,15 +42,11 @@ async function removeExpense(id: string) {
   const budget: BudgetState = await getBudget();
   const index = budget.expenses.findIndex((expense) => expense.id === id);
   const budgetToRemove = budget.expenses.find((expense) => expense.id === id);
-  console.log(budgetToRemove);
-
   if (budgetToRemove) {
     budget.spent -= budgetToRemove.cost;
     budget.remaining += budgetToRemove.cost;
   }
   budget.expenses.splice(index, 1);
-  console.log(budget);
-
   await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budget));
   return budget;
 }
