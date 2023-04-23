@@ -48,5 +48,6 @@ async function removeExpense(id: string) {
   }
   budget.expenses.splice(index, 1);
   await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budget));
-  return budget;
+  const newBudget: BudgetState = await getBudget();
+  return newBudget;
 }

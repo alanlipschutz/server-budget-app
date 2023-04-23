@@ -35,7 +35,7 @@ export const removeExpense: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
     const newBudget = await BudgetModel.removeExpense(id);
-    res.status(204).json({ newBudget: newBudget });
+    res.json({ newBudget: newBudget });
   } catch (error) {
     throw new Error('we had a problem with this removal');
   }
