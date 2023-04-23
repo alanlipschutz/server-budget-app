@@ -21,29 +21,35 @@ class User {
     this.password = password;
   }
 
-  public async save(): Promise<void> {
+  public async save() {
     try {
-      const data = JSON.parse(fs.readFileSync('users.json', 'utf8'));
+      const response = await fs.promises.readFile(
+        'src/data/users.json',
+        'utf8'
+      );
+      const data = JSON.parse(response);
       data.push({
         id: new Date().getTime().toString(),
         name: this.name,
         email: this.email,
-        password: await bcrypt.hash(this.password, 10),
+        password: this.password,
       });
-      fs.writeFileSync('users.json', JSON.stringify(data));
+      fs.promises.writeFile('src/data/users.json', JSON.stringify(data));
     } catch (err: any) {
       console.error(err.message);
       throw new Error('Failed to save user');
     }
   }
 
-  public static findByEmail(email: string): IUser | undefined {
-    const data = JSON.parse(fs.readFileSync('users.json', 'utf8')) as IUser[];
+  public static async findByEmail(email: string): Promise<IUser | undefined> {
+    const response = await fs.promises.readFile('src/data/users.json', 'utf8');
+    const data = JSON.parse(response) as IUser[];
     return data.find((user) => user.email === email);
   }
 
-  public static findById(id: string): IUser | undefined {
-    const data = JSON.parse(fs.readFileSync('users.json', 'utf8')) as IUser[];
+  public static async findById(id: string): Promise<IUser | undefined> {
+    const response = await fs.promises.readFile('src/data/users.json', 'utf8');
+    const data = JSON.parse(response) as IUser[];
     return data.find((user) => user.id === id);
   }
 }

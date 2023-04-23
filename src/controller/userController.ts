@@ -26,6 +26,29 @@ const registerUser: RequestHandler = async (req, res, next) => {
   }
 };
 
+const loginUser: RequestHandler = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findByEmail(email);
+    if (user) {
+      const token = jwt.sign({ user: { id: user.id } }, 'mysecret', {
+        expiresIn: '1h',
+      });
+      return res.status(200).json({ name: user.name, email, token });
+    }
+  } catch (err: any) {
+    console.error(err.message);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const logoutUser: RequestHandler = async (req, res, next) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: 'Logout successful' });
+};
+
 export default {
   registerUser,
+  loginUser,
+  logoutUser,
 };

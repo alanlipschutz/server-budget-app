@@ -16,3 +16,16 @@ router.post(
   userMiddlewares.checkIfUserExists,
   userController.registerUser
 );
+
+router.post(
+  '/login',
+  [body('email').isEmail(), body('password').notEmpty()],
+  userMiddlewares.checkValidationRequest,
+  userMiddlewares.checkIfEmailExists,
+  userMiddlewares.checkMatchPasswords,
+  userController.loginUser
+);
+
+router.post('/logout', userController.logoutUser);
+
+export default router;
