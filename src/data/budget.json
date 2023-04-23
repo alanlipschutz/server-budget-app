@@ -1,1 +1,12 @@
-{"budgetState":3000,"expenses":[],"remaining":3000,"spent":0}
+{
+  "budgetState": 5100,
+  "expenses": [
+    {
+      "id": "1347dceb-f7e3-43be-9b8f-fd3280b770ac",
+      "name": "coffee",
+      "cost": 5300
+    }
+  ],
+  "remaining": -200,
+  "spent": 5300
+}

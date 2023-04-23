@@ -14,8 +14,8 @@ export const getBudget: RequestHandler = async (req, res, next) => {
 export const addBudget: RequestHandler = async (req, res, next) => {
   try {
     const budget = req.body.budget;
-    const newState = await BudgetModel.addBudget(budget);
-    res.status(202).json({ newState });
+    const newBalance = await BudgetModel.addBudget(budget);
+    res.json({ newBalance: newBalance });
   } catch (error) {
     throw new Error('something went wrong when adding budget');
   }

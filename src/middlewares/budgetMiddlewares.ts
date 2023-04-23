@@ -37,7 +37,7 @@ const checkPositiveRemaining: RequestHandler = async (req, res, next) => {
   if (budgetState.budgetState - expense.cost < 0) {
     res.status(400).send({
       error:
-        "with this expense you will be in a negative number. Please, don't do it ot provide of more budget to continue",
+        "with this expense you will be in a negative number. Please, don't do it or provide of more budget to continue",
     });
   }
   next();
