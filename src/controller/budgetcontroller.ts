@@ -1,5 +1,4 @@
 import { RequestHandler } from 'express';
-import { Expense } from '../bugetType';
 import { BudgetModel } from '../models/Budget';
 
 export const getBudget: RequestHandler = async (req, res, next) => {
