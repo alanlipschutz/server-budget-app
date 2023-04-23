@@ -1,12 +1,1 @@
-{
-  "budgetState": 5100,
-  "expenses": [
-    {
-      "id": "1347dceb-f7e3-43be-9b8f-fd3280b770ac",
-      "name": "coffee",
-      "cost": 5300
-    }
-  ],
-  "remaining": -200,
-  "spent": 5300
-}
+{"budgetState":5100,"expenses":[{"id":"ec386594-74ff-4574-9e6b-973d3adc7f58","name":"coffee ","cost":200}],"remaining":4900,"spent":200}

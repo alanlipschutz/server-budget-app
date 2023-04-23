@@ -5,7 +5,9 @@ import { BudgetState, Expense } from '../bugetType';
 const checkPositiveBudget: RequestHandler = async (req, res, next) => {
   const budget = req.body.budget;
   if (budget <= 0) {
-    res.status(400).send({ error: 'budget should be a positive number' });
+    return res.status(400).json({
+      message: 'budget should be a positive number',
+    });
   }
   next();
 };
@@ -14,7 +16,9 @@ const checkBudgetStatusPositive: RequestHandler = async (req, res, next) => {
   const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
   const budgetState: BudgetState = JSON.parse(response);
   if (budgetState.budgetState <= 0) {
-    res.status(400).send({ error: 'Please, add budget to add more expenses' });
+    return res.status(400).json({
+      message: 'Please, add budget to add more expenses',
+    });
   }
   next();
 };
@@ -22,7 +26,7 @@ const checkBudgetStatusPositive: RequestHandler = async (req, res, next) => {
 const checkPositiveExpense: RequestHandler = async (req, res, next) => {
   const expense: Expense = req.body;
   if (expense.cost <= 0) {
-    res.status(400).send({
+    return res.status(400).json({
       error:
         'The cost of the expense is 0, please provide a positive number for the cost',
     });
@@ -34,9 +38,10 @@ const checkPositiveRemaining: RequestHandler = async (req, res, next) => {
   const expense: Expense = req.body;
   const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
   const budgetState: BudgetState = JSON.parse(response);
+
   if (budgetState.budgetState - expense.cost < 0) {
-    res.status(400).send({
-      error:
+    return res.status(400).json({
+      message:
         "with this expense you will be in a negative number. Please, don't do it or provide of more budget to continue",
     });
   }
@@ -55,8 +60,8 @@ const checkExpenseExist: RequestHandler<{ id: string }> = async (
     (expense) => expense.id === id
   );
   if (!expenseToRemove) {
-    res.status(404).send({
-      error: 'Expense not found. Please, provide of an expense to delete.',
+    return res.status(404).json({
+      message: 'Expense not found. Please, provide of an expense to delete.',
     });
   }
   next();
