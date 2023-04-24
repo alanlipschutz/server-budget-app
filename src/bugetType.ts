@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export interface BudgetState {
   userId: string;
   budgetState: number;

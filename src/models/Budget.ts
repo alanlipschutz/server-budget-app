@@ -6,12 +6,20 @@ export const BudgetModel = {
   addExpense,
   removeExpense,
   addBudget,
+  getMyBudget,
 };
 
 async function getBudget() {
   const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
   const budget = JSON.parse(response);
   return budget;
+}
+
+async function getMyBudget(id: string) {
+  const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
+  const budget: BudgetState[] = JSON.parse(response);
+  const userBudget = budget.filter((b) => b.userId === id);
+  return userBudget;
 }
 
 async function addBudget(budget: number) {

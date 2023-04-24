@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { BudgetModel } from '../models/Budget';
 
 export const getBudget: RequestHandler = async (req, res, next) => {
@@ -7,6 +7,19 @@ export const getBudget: RequestHandler = async (req, res, next) => {
     res.json(budget);
   } catch (error) {
     throw new Error('we had a problem returning the budget');
+  }
+};
+
+export const getMyBudget = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userBudget = await BudgetModel.getMyBudget(req.userId!);
+    return res.status(200).json(userBudget);
+  } catch (error) {
+    throw new Error("we can't send user's budget");
   }
 };
 

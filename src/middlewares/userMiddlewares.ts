@@ -1,7 +1,12 @@
-import { RequestHandler } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { validationResult } from 'express-validator';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+
+interface IJwt extends JwtPayload {
+  id: string;
+}
 
 const checkValidationRequest: RequestHandler = async (req, res, next) => {
   const errors = validationResult(req);
@@ -38,9 +43,21 @@ const checkMatchPasswords: RequestHandler = async (req, res, next) => {
   next();
 };
 
+const isAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.headers.cookie?.split('=')[1]!;
+    const payload = jwt.verify(token, 'mysecret', {}) as JwtPayload;
+    req.userId = payload.user.id;
+    next();
+  } catch (error) {
+    throw new Error('Authentication invalid');
+  }
+};
+
 export default {
   checkValidationRequest,
   checkIfUserExists,
   checkIfEmailExists,
   checkMatchPasswords,
+  isAuth,
 };

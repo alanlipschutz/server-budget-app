@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import {
   addExpense,
   getBudget,
@@ -6,10 +6,11 @@ import {
   addBudget,
 } from '../controller/budgetcontroller';
 import budgetMiddlewares from '../middlewares/budgetMiddlewares';
+import userMiddlewares from '../middlewares/userMiddlewares';
 
 const router = express.Router();
 
-router.get('/', getBudget);
+router.get('/', userMiddlewares.isAuth, getBudget);
 router.post('/budget', budgetMiddlewares.checkPositiveBudget, addBudget);
 router.post(
   '/',
