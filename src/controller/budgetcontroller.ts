@@ -25,9 +25,12 @@ export const getMyBudget = async (
 
 export const addBudget: RequestHandler = async (req, res, next) => {
   try {
+    const userId = req.userId;
     const budget = req.body.budget;
-    const newBalance = await BudgetModel.addBudget(budget);
-    res.json({ newBalance: newBalance });
+    if (userId) {
+      const newBalance = await BudgetModel.addBudget(budget, userId);
+      res.json({ newBalance: newBalance });
+    }
   } catch (error) {
     throw new Error('something went wrong when adding budget');
   }
@@ -35,9 +38,12 @@ export const addBudget: RequestHandler = async (req, res, next) => {
 
 export const addExpense: RequestHandler = async (req, res, next) => {
   try {
+    const userId = req.userId;
     const expense = req.body;
-    const newBudget = await BudgetModel.addExpense(expense);
-    res.json({ newBudget: newBudget });
+    if (userId) {
+      const newBudget = await BudgetModel.addExpense(expense, userId);
+      res.json({ newBudget: newBudget });
+    }
   } catch (error: any) {
     throw new Error(`we had a problem with this expense. ${error.message}`);
   }
@@ -46,8 +52,11 @@ export const addExpense: RequestHandler = async (req, res, next) => {
 export const removeExpense: RequestHandler = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const newBudget = await BudgetModel.removeExpense(id);
-    res.json({ newBudget: newBudget });
+    const userId = req.userId;
+    if (userId) {
+      const newBudget = await BudgetModel.removeExpense(id, userId);
+      res.json({ newBudget: newBudget });
+    }
   } catch (error) {
     throw new Error('we had a problem with this removal');
   }

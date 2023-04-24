@@ -15,27 +15,45 @@ async function getBudget() {
   return budget;
 }
 
-async function getMyBudget(id: string) {
+async function getMyBudget(id: string): Promise<BudgetState> {
   const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
   const budget: BudgetState[] = JSON.parse(response);
-  const userBudget = budget.filter((b) => b.userId === id);
+  let userBudget = budget.find((b) => b.userId === id);
+  if (!userBudget) {
+    userBudget = {
+      budgetState: 0,
+      expenses: [],
+      remaining: 0,
+      spent: 0,
+      userId: id,
+    };
+  }
   return userBudget;
 }
 
-async function addBudget(budget: number) {
-  const oldBudget: BudgetState = await getBudget();
-  oldBudget.budgetState += budget;
-  oldBudget.remaining += budget;
-  await fs.promises.writeFile(
-    'src/data/budget.json',
-    JSON.stringify(oldBudget)
-  );
-  return oldBudget;
+async function addBudget(budget: number, userId: string): Promise<BudgetState> {
+  const budgets: BudgetState[] = await getBudget();
+  let userBudget = budgets.find((budget) => budget.userId === userId);
+  if (userBudget) {
+    userBudget.budgetState += budget;
+    userBudget.remaining += budget;
+  } else {
+    userBudget = {
+      budgetState: budget,
+      remaining: budget,
+      expenses: [],
+      spent: 0,
+      userId: userId,
+    };
+    budgets.push(userBudget);
+  }
+  await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budgets));
+  return userBudget;
 }
 
-async function addExpense(expense: Expense) {
+async function addExpense(expense: Expense, userId: string) {
   try {
-    const budget: BudgetState = await getBudget();
+    const budget: BudgetState = await getMyBudget(userId);
     budget.expenses.push(expense);
     budget.spent += expense.cost;
     budget.remaining -= expense.cost;
@@ -46,8 +64,8 @@ async function addExpense(expense: Expense) {
   }
 }
 
-async function removeExpense(id: string) {
-  const budget: BudgetState = await getBudget();
+async function removeExpense(id: string, userId: string) {
+  const budget: BudgetState = await getMyBudget(userId);
   const index = budget.expenses.findIndex((expense) => expense.id === id);
   const budgetToRemove = budget.expenses.find((expense) => expense.id === id);
   if (budgetToRemove) {
@@ -56,6 +74,6 @@ async function removeExpense(id: string) {
   }
   budget.expenses.splice(index, 1);
   await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budget));
-  const newBudget: BudgetState = await getBudget();
+  const newBudget: BudgetState = await getMyBudget(userId);
   return newBudget;
 }
