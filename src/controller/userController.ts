@@ -19,6 +19,11 @@ const registerUser: RequestHandler = async (req, res, next) => {
     const token = jwt.sign({ user: { id: user.id } }, 'mysecret', {
       expiresIn: '1h',
     });
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+    });
     return res.status(201).json({ name, email, token, id: user.id });
   } catch (err: any) {
     console.error(err.message);
@@ -33,6 +38,11 @@ const loginUser: RequestHandler = async (req, res, next) => {
     if (user) {
       const token = jwt.sign({ user: { id: user.id } }, 'mysecret', {
         expiresIn: '1h',
+      });
+      res.cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
       });
       return res
         .status(200)
