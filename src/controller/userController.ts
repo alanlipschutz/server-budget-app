@@ -19,7 +19,7 @@ const registerUser: RequestHandler = async (req, res, next) => {
     const token = jwt.sign({ user: { id: user.id } }, 'mysecret', {
       expiresIn: '1h',
     });
-    return res.status(201).json({ name, email, token });
+    return res.status(201).json({ name, email, token, id: user.id });
   } catch (err: any) {
     console.error(err.message);
     return res.status(500).json({ message: 'Server error' });
@@ -34,7 +34,9 @@ const loginUser: RequestHandler = async (req, res, next) => {
       const token = jwt.sign({ user: { id: user.id } }, 'mysecret', {
         expiresIn: '1h',
       });
-      return res.status(200).json({ name: user.name, email, token });
+      return res
+        .status(200)
+        .json({ name: user.name, email, token, id: user.id });
     }
   } catch (err: any) {
     console.error(err.message);

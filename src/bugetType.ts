@@ -1,4 +1,5 @@
 export interface BudgetState {
+  userId: string;
   budgetState: number;
   remaining: number;
   spent: number;
