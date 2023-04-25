@@ -1,18 +1,20 @@
 import express from 'express';
 import cors from 'cors';
-import { json } from 'body-parser';
 
 import budgetRoutes from './routes/budgetRoute';
 import userRoutes from './routes/usersRoute';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 const corsOptions: cors.CorsOptions = {
   origin: ['http://localhost:3000', '*'],
   methods: 'GET,PUT,POST,DELETE',
+  credentials: true,
   allowedHeaders:
     'Content-Type, Authorization, Content-Length, X-Requested-With',
 };
+app.use(cookieParser());
 app.use(cors(corsOptions));
 
 app.use(express.json());
