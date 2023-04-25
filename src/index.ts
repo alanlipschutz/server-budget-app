@@ -7,15 +7,14 @@ import userRoutes from './routes/usersRoute';
 
 const app = express();
 
-const corsOptions = {
-  origin: 'http://localhost:3000',
+const corsOptions: cors.CorsOptions = {
+  origin: ['http://localhost:3000', '*'],
   methods: 'GET,PUT,POST,DELETE',
   allowedHeaders:
     'Content-Type, Authorization, Content-Length, X-Requested-With',
 };
 app.use(cors(corsOptions));
 
-// app.use(json());
 app.use(express.json());
 app.use('/', budgetRoutes);
 app.use('/', userRoutes);
