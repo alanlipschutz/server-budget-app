@@ -50,7 +50,7 @@ const isAuth = async (req: Request, res: Response, next: NextFunction) => {
     req.userId = payload.user.id;
     next();
   } catch (error) {
-    throw new Error('Authentication invalid');
+    return res.status(404).json({ message: 'Authenticated error' });
   }
 };
 

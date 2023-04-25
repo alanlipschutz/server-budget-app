@@ -6,9 +6,17 @@ import budgetRoutes from './routes/budgetRoute';
 import userRoutes from './routes/usersRoute';
 
 const app = express();
-app.use(cors());
 
-app.use(json());
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  methods: 'GET,PUT,POST,DELETE',
+  allowedHeaders:
+    'Content-Type, Authorization, Content-Length, X-Requested-With',
+};
+app.use(cors(corsOptions));
+
+// app.use(json());
+app.use(express.json());
 app.use('/', budgetRoutes);
 app.use('/', userRoutes);
 
