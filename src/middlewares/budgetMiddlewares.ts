@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import fs from 'fs';
 import { BudgetState, Expense } from '../bugetType';
+import { BudgetModel } from '../models/Budget';
 
 const checkPositiveBudget: RequestHandler = async (req, res, next) => {
   const budget = req.body.budget;
@@ -54,15 +55,17 @@ const checkExpenseExist: RequestHandler<{ id: string }> = async (
   next
 ) => {
   const { id } = req.params;
-  const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
-  const budgetState: BudgetState = JSON.parse(response);
-  const expenseToRemove = budgetState.expenses.find(
-    (expense) => expense.id === id
-  );
-  if (!expenseToRemove) {
-    return res.status(404).json({
-      message: 'Expense not found. Please, provide of an expense to delete.',
-    });
+  const userId = req.userId;
+  if (userId) {
+    const myBudget: BudgetState = await BudgetModel.getMyBudget(userId);
+    const expenseToRemove = myBudget.expenses.find(
+      (expense) => expense.id === id
+    );
+    if (!expenseToRemove) {
+      return res.status(404).json({
+        message: 'Expense not found. Please, provide of an expense to delete.',
+      });
+    }
   }
   next();
 };

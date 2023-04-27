@@ -27,6 +27,7 @@ async function getMyBudget(id: string): Promise<BudgetState> {
       spent: 0,
       userId: id,
     };
+    budget.push(userBudget);
   }
   return userBudget;
 }
@@ -57,7 +58,13 @@ async function addExpense(expense: Expense, userId: string) {
     budget.expenses.push(expense);
     budget.spent += expense.cost;
     budget.remaining -= expense.cost;
-    await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budget));
+    const budgets: BudgetState[] = await getBudget();
+    const index = budgets.findIndex((expense) => (expense.userId = userId));
+    budgets.splice(index, 1, budget);
+    await fs.promises.writeFile(
+      'src/data/budget.json',
+      JSON.stringify(budgets)
+    );
     return budget;
   } catch (error: any) {
     throw new Error(error.message);
@@ -66,6 +73,8 @@ async function addExpense(expense: Expense, userId: string) {
 
 async function removeExpense(id: string, userId: string) {
   const budget: BudgetState = await getMyBudget(userId);
+  console.log(budget);
+
   const index = budget.expenses.findIndex((expense) => expense.id === id);
   const budgetToRemove = budget.expenses.find((expense) => expense.id === id);
   if (budgetToRemove) {
@@ -73,7 +82,11 @@ async function removeExpense(id: string, userId: string) {
     budget.remaining += budgetToRemove.cost;
   }
   budget.expenses.splice(index, 1);
-  await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budget));
-  const newBudget: BudgetState = await getMyBudget(userId);
-  return newBudget;
+  const budgets: BudgetState[] = await getBudget();
+  const indexInBudgets = budgets.findIndex(
+    (budget) => (budget.userId = userId)
+  );
+  budgets.splice(indexInBudgets, 1, budget);
+  await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budgets));
+  return budget;
 }
