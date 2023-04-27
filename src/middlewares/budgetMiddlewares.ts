@@ -14,9 +14,8 @@ const checkPositiveBudget: RequestHandler = async (req, res, next) => {
 };
 
 const checkBudgetStatusPositive: RequestHandler = async (req, res, next) => {
-  const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
-  const budgetState: BudgetState = JSON.parse(response);
-  if (budgetState.budgetState <= 0) {
+  const myBudget: BudgetState = await BudgetModel.getMyBudget(req.userId!);
+  if (myBudget.budgetState <= 0) {
     return res.status(400).json({
       message: 'Please, add budget to add more expenses',
     });
@@ -37,10 +36,8 @@ const checkPositiveExpense: RequestHandler = async (req, res, next) => {
 
 const checkPositiveRemaining: RequestHandler = async (req, res, next) => {
   const expense: Expense = req.body;
-  const response = await fs.promises.readFile('src/data/budget.json', 'utf-8');
-  const budgetState: BudgetState = JSON.parse(response);
-
-  if (budgetState.budgetState - expense.cost < 0) {
+  const myBudget = await BudgetModel.getMyBudget(req.userId!)
+  if (myBudget.remaining - expense.cost < 0) {
     return res.status(400).json({
       message:
         "with this expense you will be in a negative number. Please, don't do it or provide of more budget to continue",
