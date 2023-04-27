@@ -1,56 +1,71 @@
-import fs from 'fs';
-import bcrypt from 'bcryptjs';
+import { ObjectId } from 'mongodb';
+import { connectToDB, client } from '../connection/connect';
 
 interface IUser {
-  id: string;
+  _id?: ObjectId;
   name: string;
   email: string;
   password: string;
 }
 
 class User {
-  public readonly id: string;
+  public _id?: ObjectId;
   public name: string;
   public email: string;
   public password: string;
 
-  constructor({ id, name, email, password }: IUser) {
-    this.id = id;
+  constructor({ _id, name, email, password }: IUser) {
+    this._id = _id;
     this.name = name;
     this.email = email;
     this.password = password;
   }
 
   public async save() {
-    try {
-      const response = await fs.promises.readFile(
-        'src/data/users.json',
-        'utf8'
-      );
-      const data = JSON.parse(response);
-      data.push({
-        id: new Date().getTime().toString(),
-        name: this.name,
-        email: this.email,
-        password: this.password,
-      });
-      fs.promises.writeFile('src/data/users.json', JSON.stringify(data));
-    } catch (err: any) {
-      console.error(err.message);
-      throw new Error('Failed to save user');
-    }
+    connectToDB();
+    const collection = client.db().collection('users');
+    const result = await collection.insertOne({
+      name: this.name,
+      email: this.email,
+      password: this.password,
+    });
+    this._id = result.insertedId;
+    return result;
   }
 
   public static async findByEmail(email: string): Promise<IUser | undefined> {
-    const response = await fs.promises.readFile('src/data/users.json', 'utf8');
-    const data = JSON.parse(response) as IUser[];
-    return data.find((user) => user.email === email);
+    connectToDB();
+    const collection = client.db().collection<IUser>('users');
+    const result = await collection.findOne({ email });
+    if (result) {
+      return new User({
+        _id: result._id,
+        name: result.name,
+        email: result.email,
+        password: result.password,
+      });
+    }
   }
 
   public static async findById(id: string): Promise<IUser | undefined> {
-    const response = await fs.promises.readFile('src/data/users.json', 'utf8');
-    const data = JSON.parse(response) as IUser[];
-    return data.find((user) => user.id === id);
+    connectToDB();
+    const collection = client.db().collection('users');
+    const result = await collection.findOne({ _id: new ObjectId(id) });
+    if (result) {
+      return new User({
+        _id: result._id,
+        name: result.name,
+        email: result.email,
+        password: result.password,
+      });
+    }
+  }
+
+  public static async getAllUsers() {
+    connectToDB();
+    const collection = client.db().collection('users').find({});
+    const users = await collection.toArray();
+    return users;
   }
 }
 
