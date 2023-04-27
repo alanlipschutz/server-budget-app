@@ -4,6 +4,7 @@ import cors from 'cors';
 import budgetRoutes from './routes/budgetRoute';
 import userRoutes from './routes/usersRoute';
 import cookieParser from 'cookie-parser';
+import { run } from './connection/connect';
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use('/', userRoutes);
 
 // start the server
 app.listen(8080, () => {
+  run().catch(console.dir);
   console.log(`server running : http://localhost:8080`);
 });
