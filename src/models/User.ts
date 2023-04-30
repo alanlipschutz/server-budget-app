@@ -22,8 +22,8 @@ class User {
   }
 
   public async save() {
-    connectToDB();
-    const collection = client.db().collection('users');
+    await connectToDB();
+    const collection = client.db().collection<IUser>('users');
     const result = await collection.insertOne({
       name: this.name,
       email: this.email,
@@ -34,7 +34,7 @@ class User {
   }
 
   public static async findByEmail(email: string): Promise<IUser | undefined> {
-    connectToDB();
+    await connectToDB();
     const collection = client.db().collection<IUser>('users');
     const result = await collection.findOne({ email });
     if (result) {
@@ -48,8 +48,8 @@ class User {
   }
 
   public static async findById(id: string): Promise<IUser | undefined> {
-    connectToDB();
-    const collection = client.db().collection('users');
+    await connectToDB();
+    const collection = client.db().collection<IUser>('users');
     const result = await collection.findOne({ _id: new ObjectId(id) });
     if (result) {
       return new User({
@@ -62,8 +62,8 @@ class User {
   }
 
   public static async getAllUsers() {
-    connectToDB();
-    const collection = client.db().collection('users').find({});
+    await connectToDB();
+    const collection = client.db().collection<IUser>('users').find({});
     const users = await collection.toArray();
     return users;
   }

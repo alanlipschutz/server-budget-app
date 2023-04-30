@@ -15,7 +15,7 @@ const checkPositiveBudget: RequestHandler = async (req, res, next) => {
 
 const checkBudgetStatusPositive: RequestHandler = async (req, res, next) => {
   const myBudget: BudgetState = await BudgetModel.getMyBudget(req.userId!);
-  if (myBudget.budgetState <= 0) {
+  if (myBudget && myBudget.budgetState <= 0) {
     return res.status(400).json({
       message: 'Please, add budget to add more expenses',
     });
@@ -36,7 +36,7 @@ const checkPositiveExpense: RequestHandler = async (req, res, next) => {
 
 const checkPositiveRemaining: RequestHandler = async (req, res, next) => {
   const expense: Expense = req.body;
-  const myBudget = await BudgetModel.getMyBudget(req.userId!)
+  const myBudget = await BudgetModel.getMyBudget(req.userId!);
   if (myBudget.remaining - expense.cost < 0) {
     return res.status(400).json({
       message:

@@ -17,6 +17,7 @@ export const getMyBudget = async (
 ) => {
   try {
     const userBudget = await BudgetModel.getMyBudget(req.userId!);
+    console.log(userBudget);
     return res.status(200).json(userBudget);
   } catch (error) {
     return res.status(500).json({ message: "we can't send user's budget" });
