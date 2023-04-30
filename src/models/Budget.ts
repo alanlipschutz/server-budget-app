@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { BudgetState, Expense } from '../bugetType';
 import { connectedDb } from '../connection/connect';
 
@@ -9,25 +10,40 @@ export const BudgetModel = {
   getMyBudget,
 };
 
-const db = connectedDb();
-
 async function getBudget() {
-  const collection = (await db).collection<BudgetState[]>('budgets');
+  const db = await connectedDb();
+  const collection = db.collection<BudgetState[]>('budgets');
   const budgets = await collection.find({}).toArray();
   return budgets;
 }
 
 async function getMyBudget(id: string) {
-  const collection = (await db).collection<BudgetState[]>('budgets');
-  const userBudget = await collection.findOne({ userId: id });
-  if (!userBudget) {
-    throw new Error('Budget not found');
+  try {
+    const db = await connectedDb();
+    const collection = db.collection('budgets');
+    const userBudget = await collection.findOne({ userId: id });
+    if (!userBudget) {
+      const newBudget = {
+        budgetState: 0,
+        expenses: [],
+        remaining: 0,
+        spent: 0,
+        userId: id,
+      };
+      await collection.insertOne(newBudget);
+      return newBudget as BudgetState;
+    }
+    return userBudget as unknown as BudgetState;
+  } catch (error) {
+    console.log(error);
+
+    throw new Error(`No budget. ${error}`);
   }
-  return userBudget as unknown as BudgetState;
 }
 
 async function addBudget(budget: number, userId: string) {
-  const collection = (await db).collection<BudgetState>('budgets');
+  const db = await connectedDb();
+  const collection = db.collection<BudgetState>('budgets');
   try {
     const userBudget = await collection.findOneAndUpdate(
       { userId: userId },
@@ -49,7 +65,8 @@ async function addBudget(budget: number, userId: string) {
 }
 
 async function addExpense(expense: Expense, userId: string) {
-  const collection = (await db).collection<BudgetState>('budgets');
+  const db = await connectedDb();
+  const collection = db.collection<BudgetState>('budgets');
   try {
     const userBudget = await collection.findOneAndUpdate(
       { userId: userId },
@@ -74,7 +91,8 @@ async function addExpense(expense: Expense, userId: string) {
 }
 
 async function removeExpense(id: string, userId: string) {
-  const collection = (await db).collection<BudgetState>('budgets');
+  const db = await connectedDb();
+  const collection = db.collection<BudgetState>('budgets');
   try {
     const budget = await collection.findOne({ userId: userId });
     if (!budget) {

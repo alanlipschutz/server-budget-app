@@ -2,7 +2,6 @@ import User from '../models/User';
 import { RequestHandler } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { v4 } from 'uuid';
 
 const registerUser: RequestHandler = async (req, res, next) => {
   const { name, email, password } = req.body;
