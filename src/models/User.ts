@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
-import { connectToDB, getDb } from '../connection/connect';
+import { connectedDb } from '../connection/connect';
 
-const db = getDb();
+const db = connectedDb();
 interface IUser {
   _id?: ObjectId;
   name: string;
@@ -23,7 +23,6 @@ class User {
   }
 
   public async save() {
-    await connectToDB();
     const collection = (await db).collection<IUser>('users');
     const result = await collection.insertOne({
       name: this.name,
@@ -35,7 +34,6 @@ class User {
   }
 
   public static async findByEmail(email: string): Promise<IUser | undefined> {
-    await connectToDB();
     const collection = (await db).collection<IUser>('users');
     const result = await collection.findOne({ email });
     if (result) {
@@ -49,7 +47,6 @@ class User {
   }
 
   public static async findById(id: string): Promise<IUser | undefined> {
-    await connectToDB();
     const collection = (await db).collection<IUser>('users');
     const result = await collection.findOne({ _id: new ObjectId(id) });
     if (result) {
@@ -63,7 +60,6 @@ class User {
   }
 
   public static async getAllUsers() {
-    await connectToDB();
     const collection = (await db).collection<IUser>('users').find({});
     const users = await collection.toArray();
     return users;

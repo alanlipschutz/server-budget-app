@@ -1,5 +1,5 @@
 import { BudgetState, Expense } from '../bugetType';
-import { getDb } from '../connection/connect';
+import { connectedDb } from '../connection/connect';
 
 export const BudgetModel = {
   getBudget,
@@ -9,7 +9,7 @@ export const BudgetModel = {
   getMyBudget,
 };
 
-const db = getDb();
+const db = connectedDb();
 
 async function getBudget() {
   const collection = (await db).collection<BudgetState[]>('budgets');
