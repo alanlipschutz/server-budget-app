@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
-import { connectToDB, client } from '../connection/connect';
+import { connectToDB, getDb } from '../connection/connect';
 
+const db = getDb();
 interface IUser {
   _id?: ObjectId;
   name: string;
@@ -23,7 +24,7 @@ class User {
 
   public async save() {
     await connectToDB();
-    const collection = client.db().collection<IUser>('users');
+    const collection = (await db).collection<IUser>('users');
     const result = await collection.insertOne({
       name: this.name,
       email: this.email,
@@ -35,7 +36,7 @@ class User {
 
   public static async findByEmail(email: string): Promise<IUser | undefined> {
     await connectToDB();
-    const collection = client.db().collection<IUser>('users');
+    const collection = (await db).collection<IUser>('users');
     const result = await collection.findOne({ email });
     if (result) {
       return new User({
@@ -49,7 +50,7 @@ class User {
 
   public static async findById(id: string): Promise<IUser | undefined> {
     await connectToDB();
-    const collection = client.db().collection<IUser>('users');
+    const collection = (await db).collection<IUser>('users');
     const result = await collection.findOne({ _id: new ObjectId(id) });
     if (result) {
       return new User({
@@ -63,7 +64,7 @@ class User {
 
   public static async getAllUsers() {
     await connectToDB();
-    const collection = client.db().collection<IUser>('users').find({});
+    const collection = (await db).collection<IUser>('users').find({});
     const users = await collection.toArray();
     return users;
   }

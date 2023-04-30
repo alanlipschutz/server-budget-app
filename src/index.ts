@@ -23,7 +23,7 @@ app.use('/', budgetRoutes);
 app.use('/', userRoutes);
 
 // start the server
-app.listen(8080, () => {
-  run().catch(console.dir);
+app.listen(8080, async () => {
+  await run().catch(console.dir);
   console.log(`server running : http://localhost:8080`);
 });

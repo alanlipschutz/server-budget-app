@@ -1,5 +1,4 @@
 import { RequestHandler } from 'express';
-import fs from 'fs';
 import { BudgetState, Expense } from '../bugetType';
 import { BudgetModel } from '../models/Budget';
 

@@ -1,7 +1,5 @@
-import fs from 'fs';
 import { BudgetState, Expense } from '../bugetType';
-import { ObjectId, Collection } from 'mongodb';
-import { connectToDB, client } from '../connection/connect';
+import { getDb } from '../connection/connect';
 
 export const BudgetModel = {
   getBudget,
@@ -11,16 +9,16 @@ export const BudgetModel = {
   getMyBudget,
 };
 
+const db = getDb();
+
 async function getBudget() {
-  connectToDB();
-  const collection = client.db().collection<BudgetState[]>('budgets');
+  const collection = (await db).collection<BudgetState[]>('budgets');
   const budgets = await collection.find({}).toArray();
   return budgets;
 }
 
 async function getMyBudget(id: string) {
-  connectToDB();
-  const collection = client.db().collection<BudgetState[]>('budgets');
+  const collection = (await db).collection<BudgetState[]>('budgets');
   const userBudget = await collection.findOne({ userId: id });
   if (!userBudget) {
     throw new Error('Budget not found');
@@ -29,10 +27,9 @@ async function getMyBudget(id: string) {
 }
 
 async function addBudget(budget: number, userId: string) {
-  connectToDB();
-  const collection = client.db().collection<BudgetState>('budgets');
+  const collection = (await db).collection<BudgetState>('budgets');
   try {
-    const userBudget = await collection.updateOne(
+    const userBudget = await collection.findOneAndUpdate(
       { userId: userId },
       {
         $inc: {
@@ -42,19 +39,19 @@ async function addBudget(budget: number, userId: string) {
       },
       {
         upsert: true,
+        returnDocument: 'after',
       }
     );
-    return userBudget;
+    return userBudget.value;
   } catch (error: any) {
     console.log(error.message);
   }
 }
 
 async function addExpense(expense: Expense, userId: string) {
-  connectToDB();
-  const collection = client.db().collection<BudgetState>('budgets');
+  const collection = (await db).collection<BudgetState>('budgets');
   try {
-    const userBudget = await collection.updateOne(
+    const userBudget = await collection.findOneAndUpdate(
       { userId: userId },
       {
         $inc: {
@@ -67,36 +64,39 @@ async function addExpense(expense: Expense, userId: string) {
       },
       {
         upsert: false,
+        returnDocument: 'after',
       }
     );
-    return userBudget;
+    return userBudget.value;
   } catch (error: any) {
     console.log(error.message);
   }
 }
 
 async function removeExpense(id: string, userId: string) {
-  connectToDB();
-  const collection = client.db().collection<BudgetState>('budgets');
+  const collection = (await db).collection<BudgetState>('budgets');
   try {
-    const expense = await collection.findOne({ userId: userId });
-    return expense;
-  } catch (error) {}
-  // const budget: BudgetState = await getMyBudget(userId);
-  // console.log(budget);
-
-  // const index = budget.expenses.findIndex((expense) => expense.id === id);
-  // const budgetToRemove = budget.expenses.find((expense) => expense.id === id);
-  // if (budgetToRemove) {
-  //   budget.spent -= budgetToRemove.cost;
-  //   budget.remaining += budgetToRemove.cost;
-  // }
-  // budget.expenses.splice(index, 1);
-  // const budgets: BudgetState[] = await getBudget();
-  // const indexInBudgets = budgets.findIndex(
-  //   (budget) => (budget.userId = userId)
-  // );
-  // budgets.splice(indexInBudgets, 1, budget);
-  // await fs.promises.writeFile('src/data/budget.json', JSON.stringify(budgets));
-  // return budget;
+    const budget = await collection.findOne({ userId: userId });
+    if (!budget) {
+      throw new Error('Budget not found');
+    }
+    const expenseIndex = budget.expenses.findIndex(
+      (expense) => expense.id === id
+    );
+    const expenseToDelete = budget.expenses[expenseIndex];
+    const update = await collection.findOneAndUpdate(
+      { userId: userId },
+      {
+        $inc: {
+          spent: -expenseToDelete.cost,
+          remaining: expenseToDelete.cost,
+        },
+        $pull: { expenses: { id: id } },
+      },
+      { returnDocument: 'after' }
+    );
+    return update.value;
+  } catch (error: any) {
+    console.log(error.message);
+  }
 }
