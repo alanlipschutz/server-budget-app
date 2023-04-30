@@ -44,13 +44,17 @@ const checkMatchPasswords: RequestHandler = async (req, res, next) => {
 };
 
 const isAuth = async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.cookie?.split('=')[1]!;
-  const payload = jwt.verify(token, 'mysecret', {}) as JwtPayload;
-  req.userId = payload.user.id;
+  const token = req.headers.cookie?.split('=')[1];
   if (!token) {
-    return res.status(404).json({ message: 'Authenticated error' });
+    return res.status(401).json({ message: 'Authentication error' });
   }
-  next();
+  try {
+    const payload = jwt.verify(token, 'mysecret', {}) as JwtPayload;
+    req.userId = payload.user.id;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
 };
 
 export default {
