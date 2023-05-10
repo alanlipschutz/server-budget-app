@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import { validationResult } from 'express-validator';
+import { cookie, validationResult } from 'express-validator';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
 import jwt, { JwtPayload } from 'jsonwebtoken';
@@ -44,7 +44,19 @@ const checkMatchPasswords: RequestHandler = async (req, res, next) => {
 };
 
 const isAuth = async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.cookie?.split('=')[1];
+  const cookieString = req.headers.cookie;
+  let cookieArray;
+  let token = '';
+  if (cookieString) {
+    cookieArray = cookieString.split('; ');
+  }
+  Array.isArray(cookieArray) &&
+    cookieArray.forEach((cookie) => {
+      const [key, value] = cookie.split('=');
+      if (key === 'token') {
+        token = value;
+      }
+    });
   if (!token) {
     return res.status(401).json({ message: 'Authentication error' });
   }
